@@ -8,10 +8,28 @@ import { connectDB } from "./config/db.js";
 import taskRoutes from "./routes/task.routes.js";
 
 const app = express();
-const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:3000")
+const allowedOrigins = (
+  process.env.CLIENT_ORIGIN || "http://localhost:3000,https://*.vercel.app"
+)
   .split(",")
   .map((origin) => origin.trim().replace(/\/$/, ""))
   .filter(Boolean);
+
+function isAllowedOrigin(origin: string) {
+  const normalizedOrigin = origin.replace(/\/$/, "");
+
+  return allowedOrigins.some((allowedOrigin) => {
+    if (allowedOrigin.includes("*")) {
+      const escapedPattern = allowedOrigin
+        .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/\*/g, ".*");
+
+      return new RegExp(`^${escapedPattern}$`).test(normalizedOrigin);
+    }
+
+    return allowedOrigin === normalizedOrigin;
+  });
+}
 
 async function requireDB(_req: Request, _res: Response, next: NextFunction) {
   try {
@@ -25,7 +43,7 @@ async function requireDB(_req: Request, _res: Response, next: NextFunction) {
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || isAllowedOrigin(origin)) {
         callback(null, true);
         return;
       }

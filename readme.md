@@ -16,6 +16,19 @@ MONGODB_URI=your_mongodb_connection_string
 CLIENT_ORIGIN=http://localhost:3000
 ```
 
+For Vercel, set these backend environment variables:
+
+```bash
+MONGODB_URI=your_mongodb_atlas_connection_string
+CLIENT_ORIGIN=https://your-frontend.vercel.app
+```
+
+To allow Vercel preview URLs too:
+
+```bash
+CLIENT_ORIGIN=https://your-frontend.vercel.app,https://*.vercel.app
+```
+
 ## Run
 
 Start the backend in development mode:
